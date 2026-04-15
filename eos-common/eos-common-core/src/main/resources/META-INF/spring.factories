@@ -1,0 +1,3 @@
+# AOP Auto Configuration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.eos.common.config.AopAutoConfiguration

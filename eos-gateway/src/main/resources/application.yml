@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: eos-gateway
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: public
+
+    gateway:
+      # 全局跨域配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: false
+            maxAge: 3600
+
+      # 路由配置
+      routes:
+        # 用户服务路由
+        - id: eos-user-service
+          uri: lb://eos-user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=0
+            - name: Retry
+              args:
+                retries: 2
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+
+        # 商品服务路由
+        - id: eos-product-service
+          uri: lb://eos-product-service
+          predicates:
+            - Path=/product/**
+          filters:
+            - StripPrefix=0
+
+        # 订单服务路由
+        - id: eos-order-service
+          uri: lb://eos-order-service
+          predicates:
+            - Path=/order/**
+          filters:
+            - StripPrefix=0
+
+      # 默认过滤器
+      default-filters:
+        # 添加响应头
+        - AddResponseHeader=X-Gateway, EOS-Gateway
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+
+# 日志
+logging:
+  level:
+    org.springframework.cloud.gateway: debug

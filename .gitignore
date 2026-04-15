@@ -1,0 +1,77 @@
+# ==================== Maven ====================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# ==================== IDE ====================
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# ==================== OS ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ==================== Logs ====================
+*.log
+logs/
+
+# ==================== Temporary Files ====================
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# ==================== Package Files ====================
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ==================== Environment Variables ====================
+.env
+.env.local
+.env.*.local
+
+# ==================== Docker ====================
+docker-compose.override.yml
+
+# ==================== Test Coverage ====================
+coverage/
+*.exec
+jacoco/
+
+# ==================== Documentation Build ====================
+site/
+docs/_build/

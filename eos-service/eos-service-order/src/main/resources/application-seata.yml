@@ -1,0 +1,27 @@
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: eos_tx_group
+  enable-auto-data-source-proxy: true
+  config:
+    type: nacos
+    nacos:
+      server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      namespace: seata
+      group: SEATA_GROUP
+      username: nacos
+      password: nacos
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      namespace: seata
+      group: SEATA_GROUP
+      username: nacos
+      password: nacos
+  service:
+    vgroup-mapping:
+      eos_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091

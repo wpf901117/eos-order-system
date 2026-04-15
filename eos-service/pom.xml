@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        eos-service 父模块
+        汇总所有业务服务模块
+    -->
+    <parent>
+        <groupId>com.eos</groupId>
+        <artifactId>enterprise-order-system</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>eos-service</artifactId>
+    <packaging>pom</packaging>
+    <name>EOS Services</name>
+
+    <modules>
+        <module>eos-service-user</module>
+        <module>eos-service-product</module>
+        <module>eos-service-order</module>
+    </modules>
+
+</project>

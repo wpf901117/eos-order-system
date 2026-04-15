@@ -1,0 +1,92 @@
+# =====================================
+# EOS 企业级订单管理系统 - Docker Compose
+# =====================================
+# 说明：
+# 1. 一键启动项目所需的所有中间件
+# 2. 包含：MySQL、Redis、Nacos、RocketMQ
+# 3. 适合本地开发和测试环境
+# =====================================
+
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0.33
+    container_name: eos-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eos_user
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - eos-network
+
+  # Redis 缓存
+  redis:
+    image: redis:7.0-alpine
+    container_name: eos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - eos-network
+
+  # Nacos 注册中心 & 配置中心
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    container_name: eos-nacos
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_DB_NAME: nacos
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: root
+      NACOS_AUTH_ENABLE: "false"
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    depends_on:
+      - mysql
+    networks:
+      - eos-network
+
+  # RocketMQ Nameserver
+  rocketmq-nameserver:
+    image: apache/rocketmq:5.1.4
+    container_name: eos-rocketmq-nameserver
+    command: sh mqnamesrv
+    ports:
+      - "9876:9876"
+    networks:
+      - eos-network
+
+  # RocketMQ Broker
+  rocketmq-broker:
+    image: apache/rocketmq:5.1.4
+    container_name: eos-rocketmq-broker
+    command: sh mqbroker -n rocketmq-nameserver:9876 -c /home/rocketmq/rocketmq-5.1.4/conf/broker.conf
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+    depends_on:
+      - rocketmq-nameserver
+    environment:
+      NAMESRV_ADDR: "rocketmq-nameserver:9876"
+    networks:
+      - eos-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  eos-network:
+    driver: bridge

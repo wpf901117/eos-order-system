@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java -version)",
+      "Bash(mvn -version)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn test *)",
+      "Bash(mvn install *)"
+    ]
+  }
+}

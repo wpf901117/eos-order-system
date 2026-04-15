@@ -1,0 +1,93 @@
+# ==================== 测试环境配置 ====================
+
+server:
+  port: 8083
+
+spring:
+  application:
+    name: eos-order-service
+  
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://test-mysql:3306/eos_order?useSSL=false&serverTimezone=Asia/Shanghai
+    username: test_user
+    password: test_password
+    
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # Redis 配置
+  redis:
+    host: test-redis
+    port: 6379
+    password: test_redis_password
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+        max-wait: 3000ms
+
+# MyBatis Plus 配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl  # 测试环境使用 SLF4J
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: assign_id
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Seata 配置
+seata:
+  enabled: true
+  tx-service-group: eos-order-service-group
+  service:
+    vgroup-mapping:
+      eos-order-service-group: default
+    grouplist:
+      default: test-seata:8091
+
+# Nacos 配置
+spring.cloud.nacos:
+  config:
+    server-addr: test-nacos:8848
+    namespace: test-namespace
+    file-extension: yaml
+  discovery:
+    server-addr: test-nacos:8848
+    namespace: test-namespace
+
+# 日志配置
+logging:
+  level:
+    root: WARN
+    com.eos.order: INFO
+  file:
+    name: /data/logs/order-service/test.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+
+# Actuator 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# 自定义配置
+app:
+  env: test
+  debug: false

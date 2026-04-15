@@ -1,0 +1,153 @@
+# ==================== 生产环境配置 ====================
+
+server:
+  port: 8083
+  # Tomcat 优化
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+    accept-count: 100
+    connection-timeout: 20000
+
+spring:
+  application:
+    name: eos-order-service
+  
+  # 数据源配置（主从）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 使用 ShardingSphere 或动态数据源
+    url: jdbc:mysql://prod-mysql-master:3306/eos_order?useSSL=true&serverTimezone=Asia/Shanghai&useServerPrepStmts=true&cachePrepStmts=true
+    username: ${DB_USERNAME:prod_user}  # 从环境变量读取
+    password: ${DB_PASSWORD:prod_password}
+    
+    hikari:
+      minimum-idle: 20
+      maximum-pool-size: 100
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+  
+  # Redis 集群配置
+  redis:
+    cluster:
+      nodes:
+        - prod-redis-1:6379
+        - prod-redis-2:6379
+        - prod-redis-3:6379
+      max-redirects: 3
+    password: ${REDIS_PASSWORD:prod_redis_password}
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 20
+        min-idle: 10
+        max-wait: 5000ms
+
+# MyBatis Plus 配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    map-underscore-to-camel-case: true
+    cache-enabled: true  # 开启二级缓存
+  global-config:
+    db-config:
+      id-type: assign_id
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Seata 配置
+seata:
+  enabled: true
+  tx-service-group: eos-order-service-group
+  service:
+    vgroup-mapping:
+      eos-order-service-group: default
+    grouplist:
+      default: prod-seata:8091
+  config:
+    type: nacos
+    nacos:
+      server-addr: prod-nacos:8848
+      namespace: prod-namespace
+      group: SEATA_GROUP
+
+# Nacos 配置
+spring.cloud.nacos:
+  config:
+    server-addr: prod-nacos:8848
+    namespace: prod-namespace
+    file-extension: yaml
+    refresh-enabled: true
+  discovery:
+    server-addr: prod-nacos:8848
+    namespace: prod-namespace
+    metadata:
+      version: 1.0.0
+
+# 日志配置（生产环境）
+logging:
+  level:
+    root: WARN
+    com.eos.order: INFO
+  file:
+    name: /data/logs/order-service/prod.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 10GB
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+
+# Actuator 监控配置（生产环境）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      env: prod
+
+# JVM 监控
+management.jmx:
+  enabled: true
+
+# 自定义配置
+app:
+  env: prod
+  debug: false
+  # 限流配置
+  rate-limit:
+    enabled: true
+    qps: 1000
+  # 缓存配置
+  cache:
+    ttl: 1800  # 30分钟
+
+# 安全配置
+security:
+  cors:
+    allowed-origins: https://your-domain.com
+  jwt:
+    secret: ${JWT_SECRET:your-secret-key}
+    expiration: 7200000  # 2小时
